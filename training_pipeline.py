@@ -1,55 +1,74 @@
-#!bin/python3
-# 1. Design model (input, output size, forward pass)
+#!/bin/python3
+# 1. Design model (input, output size, model p_testass)
 # 2. Construct loss, optimizer
 # 3. Training loop:
-#    - Forward pass: Predict
+#    - model p_testass: Predict
 #    - Backward pass: Gradients
 #    - Update weights
 
 import numpy as np
+import torch
+import torch.nn as nn
 
-X = np.array([1, 2, 3, 4], dtype=np.float32)
-Y = np.array([2, 4, 6, 8], dtype=np.float32)
+n_iters = 100
+learning_rate = 0.01
 
-w = 0.0 #scalar
+X = torch.tensor([[1], [2], [3], [4]], dtype=torch.float32)
+Y = torch.tensor([[2], [4], [6], [8]], dtype=torch.float32)
 
-#predict
-def forward(X):
-    return w * X
+X_test = torch.tensor([5], dtype=torch.float32)
+
+n_samples, n_features = X.shape
+print(n_samples, n_features)
+
+input_size = n_features
+output_size = n_features
+
+#design pytorch model
+class LinearRegression(nn.Module):
+    def __init__(self, input_dim, output_dim):
+        super(LinearRegression, self).__init__()
+        self.lin = nn.Linear(input_dim, output_dim)
+
+    def forward(self, x):
+        return self.lin(x)
+    
+# model = nn.Linear(input_size, output_size)
+model = LinearRegression(input_size, output_size)
 
 #loss = MSE
-def loss(y, y_predicted):
-    return ((y_predicted - y)**2).mean()
+loss = nn.MSELoss()
 
 #gradient
 #MSE = 1/N * (w*x - y)**2
 #dJ/dw = 1/N 2x(w*x - y)
-def gradient(x, y, y_predicted):
-    return np.dot(2*x, y_predicted - y).mean()
+optimizer = torch.optim.SGD(model.parameters(), lr = learning_rate)
 
 print("X: ")
 print(X)
-print(f'(before) Predict f(X): {forward(X)}')
+print(f'(before) Predict f(X): {model(X_test)}')
 
 #training
-n_iters = 10
-learning_rate = 0.01
 for epoch in range(n_iters):
     # predict
-    y_pred = forward(X)
+    y_pred = model(X)
     
     # loss
     l = loss(Y, y_pred)
 
     # grad
-    dw = gradient(X, Y, y_pred)
+    l.backward()
     
     # gradient descent
-    w -= learning_rate * dw
+    optimizer.step()
 
+    optimizer.zero_grad()
+        
     # print
-    if (epoch%1 == 0):
-        print(f'epoch {epoch+1}: w = {w:.3f}, l = {l:.8f}')
+    if ((epoch+1)%10 == 0):
+        [w, b] = model.parameters()
+        print(f'epoch {epoch+1}: w = {w[0][0].item():.3f}, l = {l:.8f}')
 
-print(f'(after) Predict f(X): {forward(X)}')
-print(f'loss: {loss(Y, forward(X))}')
+print(f'(after) Predict f(X): {model(X_test)}')
+print(f'w: {w}')
+print(f'loss: {loss(Y, model(X_test))}')
