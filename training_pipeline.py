@@ -1,3 +1,11 @@
+#!bin/python3
+# 1. Design model (input, output size, forward pass)
+# 2. Construct loss, optimizer
+# 3. Training loop:
+#    - Forward pass: Predict
+#    - Backward pass: Gradients
+#    - Update weights
+
 import numpy as np
 
 X = np.array([1, 2, 3, 4], dtype=np.float32)
@@ -17,7 +25,7 @@ def loss(y, y_predicted):
 #MSE = 1/N * (w*x - y)**2
 #dJ/dw = 1/N 2x(w*x - y)
 def gradient(x, y, y_predicted):
-    return np.dot(2*x, y_predicted - y)/len(x)
+    return np.dot(2*x, y_predicted - y).mean()
 
 print("X: ")
 print(X)
@@ -25,7 +33,7 @@ print(f'(before) Predict f(X): {forward(X)}')
 
 #training
 n_iters = 10
-learning_rate = 0.1
+learning_rate = 0.01
 for epoch in range(n_iters):
     # predict
     y_pred = forward(X)
@@ -44,5 +52,4 @@ for epoch in range(n_iters):
         print(f'epoch {epoch+1}: w = {w:.3f}, l = {l:.8f}')
 
 print(f'(after) Predict f(X): {forward(X)}')
-print(f'w: {w}')
 print(f'loss: {loss(Y, forward(X))}')
