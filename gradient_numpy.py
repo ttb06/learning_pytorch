@@ -1,9 +1,13 @@
 import numpy as np
+import torch
 
-X = np.array([1, 2, 3, 4], dtype=np.float32)
-Y = np.array([2, 4, 6, 8], dtype=np.float32)
+# X = np.array([1, 2, 3, 4], dtype=np.float32)
+# Y = np.array([2, 4, 6, 8], dtype=np.float32)
+X = torch.tensor([1, 2, 3, 4], dtype=torch.float32)
+Y = torch.tensor([2, 4, 6, 8], dtype=torch.float32)
 
-w = 0.0 #scalar
+# w = 0.0 #scalar
+w = torch.tensor(0.0, dtype=torch.float32, requires_grad=True)
 
 #predict
 def forward(X):
@@ -34,11 +38,15 @@ for epoch in range(n_iters):
     l = loss(Y, y_pred)
 
     # grad
-    dw = gradient(X, Y, y_pred)
+    # dw = gradient(X, Y, y_pred)
+    l.backward()
     
     # gradient descent
-    w -= learning_rate * dw
-
+    # w -= learning_rate * dw
+    with torch.no_grad():
+        w -= learning_rate * w.grad
+    w.grad.zero_()
+    
     # print
     if (epoch%1 == 0):
         print(f'epoch {epoch+1}: w = {w:.3f}, l = {l:.8f}')
