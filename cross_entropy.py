@@ -17,10 +17,14 @@ l2 = cross_entropy(Y, y_pred_bad)
 
 loss = nn.CrossEntropyLoss()
 Y = torch.tensor([0])
-#nsamples * nclasses -> 1*3
-y_pred_good = torch.tensor([[2.0, 1.0, 0.1]])
-y_pred_bad = torch.tensor([[0, 0, 0.1]])
-
+# nsamples * nclasses -> 1*3
+y_pred_good = torch.tensor([[2.0, 0.1, 0.1]])
+y_pred_bad = torch.tensor([[0, 0.1, 1]])
+# print(Y.shape)
 l1 = loss(y_pred_bad, Y)
 l2 = loss(y_pred_good, Y)
-print (l1, l2)
+# print (l1, l2)
+
+_, pred1 = torch.max(y_pred_good, 1)
+_, pred2 = torch.max(y_pred_bad, 1)
+print (pred1, pred2)
